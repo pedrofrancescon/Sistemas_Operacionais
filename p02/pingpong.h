@@ -14,7 +14,11 @@
 // funções gerais ==============================================================
 
 // Inicializa o sistema operacional; deve ser chamada no inicio do main()
-void pingpong_init () ;
+void pingpong_init () 
+{
+	// Para desativar o buffer do printf.
+	setvbuf (stdout, 0, _IONBF, 0);
+}
 
 // gerência de tarefas =========================================================
 
@@ -128,26 +132,26 @@ int mqueue_msgs (mqueue_t *queue) ;
 // Redefinir funcoes POSIX "proibidas" como "FORBIDDEN" (gera erro ao compilar)
 
 // POSIX threads
-#define pthread_create			FORBIDDEN
-#define pthread_join			FORBIDDEN
-#define pthread_exit			FORBIDDEN
+#define pthread_create				FORBIDDEN
+#define pthread_join				FORBIDDEN
+#define pthread_exit				FORBIDDEN
 
 // POSIX semaphores
-#define sem_init			FORBIDDEN
-#define sem_post			FORBIDDEN
-#define sem_wait			FORBIDDEN
-#define sem_trywait			FORBIDDEN
+#define sem_init					FORBIDDEN
+#define sem_post					FORBIDDEN
+#define sem_wait					FORBIDDEN
+#define sem_trywait					FORBIDDEN
 
 // POSIX message queues
-#define mq_open				FORBIDDEN
-#define mq_send				FORBIDDEN
-#define mq_receive			FORBIDDEN
-#define mq_close			FORBIDDEN
+#define mq_open						FORBIDDEN
+#define mq_send						FORBIDDEN
+#define mq_receive					FORBIDDEN
+#define mq_close					FORBIDDEN
 
 // POSIX condvars
-#define pthread_cond_init		FORBIDDEN
-#define pthread_cond_wait		FORBIDDEN
-#define pthread_cond_signal		FORBIDDEN
+#define pthread_cond_init			FORBIDDEN
+#define pthread_cond_wait			FORBIDDEN
+#define pthread_cond_signal			FORBIDDEN
 #define pthread_cond_timedwait		FORBIDDEN
 
 // POSIX barriers
@@ -156,15 +160,15 @@ int mqueue_msgs (mqueue_t *queue) ;
 #define pthread_barrier_destroy		FORBIDDEN
 
 // POSIX mutexes
-#define pthread_mutex_init		FORBIDDEN
-#define pthread_mutex_lock		FORBIDDEN
+#define pthread_mutex_init			FORBIDDEN
+#define pthread_mutex_lock			FORBIDDEN
 #define pthread_mutex_unlock		FORBIDDEN
 #define pthread_mutex_timedlock		FORBIDDEN
 #define pthread_mutex_trylock		FORBIDDEN
 #define pthread_mutex_destroy		FORBIDDEN
 
 // POSIX RW-locks
-#define pthread_rwlock_init		FORBIDDEN
+#define pthread_rwlock_init			FORBIDDEN
 #define pthread_rwlock_rdlock		FORBIDDEN
 #define pthread_rwlock_wrlock		FORBIDDEN
 #define pthread_rwlock_unlock		FORBIDDEN
@@ -175,9 +179,9 @@ int mqueue_msgs (mqueue_t *queue) ;
 #define pthread_rwlock_destroy		FORBIDDEN
 
 // POSIX spinlocks
-#define pthread_spin_init		FORBIDDEN
-#define pthread_spin_lock		FORBIDDEN
-#define pthread_spin_unlock		FORBIDDEN
+#define pthread_spin_init			FORBIDDEN
+#define pthread_spin_lock			FORBIDDEN
+#define pthread_spin_unlock			FORBIDDEN
 #define pthread_spin_trylock		FORBIDDEN
 #define pthread_spin_destroy		FORBIDDEN
 
