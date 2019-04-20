@@ -3,6 +3,9 @@
 // Versão 1.0 -- Março de 2015
 //
 // Interface do núcleo para as aplicações
+#include <stdio.h>
+#include <stdlib.h>
+#include <ucontext.h>
 
 #ifndef __PINGPONG__
 #define __PINGPONG__
@@ -14,11 +17,7 @@
 // funções gerais ==============================================================
 
 // Inicializa o sistema operacional; deve ser chamada no inicio do main()
-void pingpong_init () 
-{
-	// Para desativar o buffer do printf.
-	setvbuf (stdout, 0, _IONBF, 0);
-}
+void pingpong_init () ;
 
 // gerência de tarefas =========================================================
 
