@@ -7,35 +7,39 @@
 #ifndef __DATATYPES__
 #define __DATATYPES__
 
+#include <ucontext.h>
+
 // Estrutura que define uma tarefa
 typedef struct task_t
 {
-	struct task_t *prev, *next ; // para usar com a biblioteca de filas (cast)
-	int tid ; // ID da tarefa
-} task_t ;
+	struct task_t *prev, *next; // para usar com a biblioteca de filas (cast)
+	int id; // ID da tarefa
+	ucontext_t *task_context;
+
+} task_t;
 
 // estrutura que define um semáforo
 typedef struct
 {
   // preencher quando necessário
-} semaphore_t ;
+} semaphore_t;
 
 // estrutura que define um mutex
 typedef struct
 {
   // preencher quando necessário
-} mutex_t ;
+} mutex_t;
 
 // estrutura que define uma barreira
 typedef struct
 {
   // preencher quando necessário
-} barrier_t ;
+} barrier_t;
 
 // estrutura que define uma fila de mensagens
 typedef struct
 {
   // preencher quando necessário
-} mqueue_t ;
+} mqueue_t;
 
 #endif
