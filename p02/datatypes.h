@@ -14,7 +14,7 @@ typedef struct task_t
 {
 	struct task_t *prev, *next; // para usar com a biblioteca de filas (cast)
 	int id; // ID da tarefa
-	ucontext_t *task_context;
+	ucontext_t task_context;//contexto da tarefa, não pode ser ponteiro (??)
 
 } task_t;
 

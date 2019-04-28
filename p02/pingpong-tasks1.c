@@ -23,7 +23,7 @@ void BodyPing (void * arg)
    task_exit (0) ;
 }
 
-void BodyPong (void * arg) 
+void BodyPong (void * arg)
 {
    int i ;
    char* name = (char *) arg ;
