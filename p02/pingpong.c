@@ -49,9 +49,9 @@ int task_switch (task_t *task) //ttroca o uso do processador entre tarefas
 {
     if(task==NULL) return -1; //retorna erro se a tarefa é invalida
     task_t *tarefa_anterior = tarefa_atual;
-    tarefa_atual = task;
-    tarefa_atual->prev = tarefa_anterior;
+    tarefa_atual = task;    
     swapcontext(&(tarefa_anterior->task_context), &(tarefa_atual->task_context));
+    return 0;
 }
 
 int task_id ()
