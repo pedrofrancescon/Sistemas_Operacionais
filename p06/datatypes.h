@@ -25,7 +25,7 @@ typedef struct task_t
 	char status; //estado da tarefa
     unsigned int init_exec_time;
     unsigned int final_exec_time;
-    unsigned int process_time_count;
+    unsigned int process_time_count; //tempo que tarefa 'ficou' com processador
     int activations;
 	ucontext_t task_context; //contexto da tarefa, não pode ser ponteiro (??)
 

@@ -29,11 +29,11 @@ int main (int argc, char *argv[])
 
    pingpong_init () ;
 
-   _task_create (&Pang, Body, "    Pang") ;
-   _task_create (&Peng, Body, "        Peng") ;
-   _task_create (&Ping, Body, "            Ping") ;
-   _task_create (&Pong, Body, "                Pong") ;
-   _task_create (&Pung, Body, "                    Pung") ;
+   task_create (&Pang, Body, "    Pang") ;
+   task_create (&Peng, Body, "        Peng") ;
+   task_create (&Ping, Body, "            Ping") ;
+   task_create (&Pong, Body, "                Pong") ;
+   task_create (&Pung, Body, "                    Pung") ;
 
    task_yield () ;
 

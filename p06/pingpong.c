@@ -1,10 +1,10 @@
 #include "pingpong.h"
-
+#define FCFS //descomentar para executar sem prioridade: pingpong-contab 
 task_t *tarefa_atual; //variavel global da tarefa corrente
 task_t *fila_tarefas; //fila de fila_tarefas
 task_t *fila_tarefas_suspensas; //fila de tarefas suspenas (ainda ñ usado aqui)
 int id_tarefa; //incrementa id para proxima tarefa
-unsigned int program_clock; // contador de tempo transcorrido (em milisegundos) 
+unsigned int program_clock; // contador de tempo transcorrido (em milisegundos)
 task_t tarefa_principal; // tarefa main, não pode ser ponteiro(?)
 task_t dispatcher; //tarefa despachante
 
@@ -17,21 +17,25 @@ unsigned int systime ()
 }
 
 task_t* scheduler(){
-    //return fila_tarefas;
-    task_t *prioritario = fila_tarefas; //primeiro elemento é o mais prioritario
-    task_t *candidato_prioritario = fila_tarefas->next; //segundo elemento é candidato
+    #ifdef FCFS
+        return fila_tarefas;
+    #endif
+    #ifndef FCFS
+        task_t *prioritario = fila_tarefas; //primeiro elemento é o mais prioritario
+        task_t *candidato_prioritario = fila_tarefas->next; //segundo elemento é candidato
 
-    //encontra a tarefa mais prioritaria
-    while (candidato_prioritario != fila_tarefas){ //enquanto não percorreu toda fila
-        //compara prioridades dinamicas
-        if (candidato_prioritario->prioridade_dinamica <= prioritario->prioridade_dinamica)
-            prioritario = candidato_prioritario; //caso seja 'maior', candidato vira o prioritario
-        candidato_prioritario->prioridade_dinamica -= 1; //envelhecimento da tarefa
-        candidato_prioritario = candidato_prioritario->next; //'anda' na fila
-    }
-    fila_tarefas->prioridade_dinamica -= 1; //envelhecimento do primeiro elemento
-    prioritario->prioridade_dinamica = prioritario->prioridade_estatica; //retorno da prioridade original
-    return prioritario;
+        //encontra a tarefa mais prioritaria
+        while (candidato_prioritario != fila_tarefas){ //enquanto não percorreu toda fila
+            //compara prioridades dinamicas
+            if (candidato_prioritario->prioridade_dinamica <= prioritario->prioridade_dinamica)
+                prioritario = candidato_prioritario; //caso seja 'maior', candidato vira o prioritario
+            candidato_prioritario->prioridade_dinamica -= 1; //envelhecimento da tarefa
+            candidato_prioritario = candidato_prioritario->next; //'anda' na fila
+        }
+        fila_tarefas->prioridade_dinamica -= 1; //envelhecimento do primeiro elemento
+        prioritario->prioridade_dinamica = prioritario->prioridade_estatica; //retorno da prioridade original
+        return prioritario;
+    #endif
 }
 void dispatcher_body (){
     task_t *prox; //próxima tarefa, escolhida pelo despachante
@@ -48,7 +52,7 @@ void tique(){
     tarefa_atual->process_time_count += 1;
     if (task_id() != 1){ //tarefa de usuário
         tarefa_atual->quantum -= 1;
-        
+
         if (tarefa_atual->quantum == 0)
             task_yield();
     }
@@ -77,12 +81,12 @@ void pingpong_init ()
         perror ("Erro em setitimer: ") ;
         exit (1) ;
     }
-    
+
     //Fim da Inicialização do Temporizador
-    _task_create(&dispatcher, (void *)dispatcher_body, NULL); //cria tarefa dispatcher
+    task_create(&dispatcher, (void *)dispatcher_body, NULL); //cria tarefa dispatcher
 }
 
-int _task_create (task_t *task, void (*start_func)(void *), void *arg){
+int task_create (task_t *task, void (*start_func)(void *), void *arg){
     // Inicia contexto atual em "tarefa_atual"
     if(task==NULL) return -1; //retorna erro se a tarefa é invalida
     getcontext(&(task->task_context));
@@ -117,7 +121,7 @@ int _task_create (task_t *task, void (*start_func)(void *), void *arg){
 
 void task_exit (int exitCode) {
     tarefa_atual->final_exec_time = systime();
-    printf ("Task %d exit: execution time %4d ms, processor time %4d ms, %d activations",
+    printf ("Task %d exit: execution time %4d ms, processor time %4d ms, %d activations\n",
             tarefa_atual->id,
             tarefa_atual->final_exec_time - tarefa_atual->init_exec_time,
             tarefa_atual->process_time_count,
@@ -126,7 +130,7 @@ void task_exit (int exitCode) {
         queue_remove((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
         task_switch(&dispatcher);
         printf ("INICIO em %4d ms\n", systime()) ;
-        
+
         return;
     }
     task_switch(&tarefa_principal); //devolve o processador para tarefa main

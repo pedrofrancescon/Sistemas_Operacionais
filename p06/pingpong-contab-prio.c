@@ -30,19 +30,19 @@ int main (int argc, char *argv[])
 
    pingpong_init () ;
 
-   _task_create (&Pang, Body, "    Pang") ;
+   task_create (&Pang, Body, "    Pang") ;
    task_setprio (&Pang, 0);
 
-   _task_create (&Peng, Body, "        Peng") ;
+   task_create (&Peng, Body, "        Peng") ;
    task_setprio (&Peng, -2);
 
-   _task_create (&Ping, Body, "            Ping") ;
+   task_create (&Ping, Body, "            Ping") ;
    task_setprio (&Ping, -4);
 
-   _task_create (&Pong, Body, "                Pong") ;
+   task_create (&Pong, Body, "                Pong") ;
    task_setprio (&Pong, -6);
 
-   _task_create (&Pung, Body, "                    Pung") ;
+   task_create (&Pung, Body, "                    Pung") ;
    task_setprio (&Pung, -8);
 
    task_yield () ;

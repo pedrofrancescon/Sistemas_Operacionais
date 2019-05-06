@@ -25,7 +25,7 @@ void pingpong_init (void) ;
 // gerência de tarefas =========================================================
 
 // Cria uma nova tarefa. Retorna um ID> 0 ou erro.
-int _task_create (task_t *task,			// descritor da nova tarefa
+int task_create (task_t *task,			// descritor da nova tarefa
                  void (*start_func)(void *),	// funcao corpo da tarefa
                  void *arg) ;			// argumentos para a tarefa
 
