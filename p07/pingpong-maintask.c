@@ -7,7 +7,7 @@
 #warning Este codigo foi planejado para ambientes UNIX (LInux, *BSD, MacOS). A compilacao e execucao em outros ambientes e responsabilidade do usuario.
 #endif
 
-task_t Pang, Peng, Ping, Pong, Pung ;
+task_t Pang, Peng, Ping, Pong, Pung, Main ;
 
 void Body (void * arg)
 {
@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
 {
    int i,j ;
 
-   pingpong_init () ;
+   pingpong_init (main) ;
 
    printf ("Main INICIO em %4d ms\n", systime()) ;
 
@@ -35,6 +35,8 @@ int main (int argc, char *argv[])
    task_create (&Ping, Body, "            Ping") ;
    task_create (&Pong, Body, "                Pong") ;
    task_create (&Pung, Body, "                    Pung") ;
+
+   task_yield ();
 
    for (i=0; i<20000; i++)
       for (j=0; j<40000; j++) ;
