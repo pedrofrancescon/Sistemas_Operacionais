@@ -23,11 +23,11 @@ typedef struct task_t
 	short prioridade_dinamica;
 	short quantum;
 	char status; //estado da tarefa
-	char type;
-    unsigned int init_exec_time;
-    unsigned int final_exec_time;
-    unsigned int process_time_count; //tempo que tarefa 'ficou' com processador
-    int activations;
+	task_t* joined;
+  unsigned int init_exec_time;
+  unsigned int final_exec_time;
+  unsigned int process_time_count; //tempo que tarefa 'ficou' com processador
+  int activations;
 	ucontext_t task_context; //contexto da tarefa, não pode ser ponteiro (??)
 
 } task_t;

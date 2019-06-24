@@ -126,6 +126,13 @@ void task_exit (int exitCode) {
             tarefa_atual->activations) ;
     if (tarefa_atual != &dispatcher){
         queue_remove((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
+
+        while (queue_size(tarefa_atual->joined) > 0) {
+          queue_append ((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual->joined); //adiciona na fila
+          queue_remove((queue_t**) &(tarefa_atual->joined), (queue_t*) tarefa_atual->joined);
+
+        }
+
         task_switch(&dispatcher);
         printf ("INICIO em %4d ms\n", systime()) ;
 
@@ -164,17 +171,21 @@ void _task_resume (task_t *task){
 }
 void _task_suspend (task_t *task, task_t **queue){
     if (task != NULL){
-        queue_append((queue_t **) queue, (queue_t *) task);
-        //muda o status
+        // adicionada tarefa atual na lista da tarefa ¨task¨
+        queue_append((queue_t **) queue, (queue_t *) tarefa_atual);
+        // tarefa atual é suspensa
+        tarefa_atual->status = 'S';
+        // volta p/ o dispatcher
+        task_yield();
     }
-    else{
-        task = tarefa_atual;
-        queue_append((queue_t **) queue, (queue_t *) task);
-    }
-    task->status = 'S'; //tarefa suspensa
-    if (queue != NULL){
-        queue_remove((queue_t **) fila_tarefas, (queue_t *) task);
-    }
+    // else {
+    //     task = tarefa_atual;
+    //     queue_append((queue_t **) queue, (queue_t *) task);
+    // }
+    // task->status = 'S'; //tarefa suspensa
+    // if (queue != NULL){
+    //     queue_remove((queue_t **) fila_tarefas, (queue_t *) task);
+    // }
 }
 void task_setprio (task_t *task, int prio){
     if (task == NULL)
@@ -189,4 +200,10 @@ int task_getprio (task_t *task){
     if (task != NULL)
         return task->prioridade_estatica;
     return tarefa_atual->prioridade_estatica;
+}
+
+int task_join (task_t *task) {
+
+  _task_suspend (task, task->joined);
+
 }
