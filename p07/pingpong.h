@@ -31,7 +31,7 @@ struct itimerval tempo;
 // funções gerais ==============================================================
 
 // Inicializa o sistema operacional; deve ser chamada no inicio do main()
-void pingpong_init (int (*)(int,  char **)) ;
+void pingpong_init (void) ;
 
 // gerência de tarefas =========================================================
 

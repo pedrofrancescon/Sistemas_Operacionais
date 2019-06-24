@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
 {
    int i,j ;
 
-   pingpong_init (main) ;
+   pingpong_init () ;
 
    printf ("Main INICIO em %4d ms\n", systime()) ;
 

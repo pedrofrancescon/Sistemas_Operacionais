@@ -41,21 +41,27 @@ void dispatcher_body (){
 void tique(){
     program_clock += 1;
     tarefa_atual->process_time_count += 1;
-    if (task_id() != 1){ //tarefa de usuário
+    if (task_id() != 1){ //tarefa de usuário ou main
         tarefa_atual->quantum -= 1;
 
         if (tarefa_atual->quantum == 0)
             task_yield();
     }
 }
-void pingpong_init (int (*principal)(int,  char **))
+void pingpong_init ()
 {
     setvbuf (stdout, 0, _IONBF, 0); // Para desativar o buffer do printf.
-    id_tarefa = 0; //atribuido a novas tarefas id com valores maior que zero
+    id_tarefa = 1; //atribuido a novas tarefas id com valores maior que zero
+    tarefa_principal.id = 0;
     tarefa_atual=&tarefa_principal; //primeira tarefa deve ser a principal
     program_clock = 0;
+    tarefa_atual->quantum = 20;
+    tarefa_atual->init_exec_time = systime();
+    tarefa_atual->process_time_count = 0;
+    tarefa_atual->activations = 0;
 
-    task_create(&tarefa_principal, (void *) principal, (void*) 1); //cria tarefa main
+
+    //task_create(&tarefa_principal, (void *) principal, (void*) 1); //cria tarefa main
 
     //Temporizador
     acao.sa_handler = tique; //função que será chamada a cada disparo
@@ -145,10 +151,10 @@ int task_id ()
 }
 //retorna processador para despachante, a tarefa vai para o final da fila
 void task_yield (){
-    if (tarefa_atual != &tarefa_principal){
-        queue_remove((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
-        queue_append((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
-    }
+    //if (tarefa_atual != &tarefa_principal){ //agora deixa a principal entrar na fila também
+    queue_remove((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
+    queue_append((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
+    //}
     task_switch(&dispatcher);
 }
 void _task_resume (task_t *task){
