@@ -17,18 +17,18 @@
 // Estrutura que define uma tarefa
 typedef struct task_t
 {
-	struct task_t *prev, *next; // para usar com a biblioteca de filas (cast)
+	struct task_t *prev, *next, *joined; // para usar com a biblioteca de filas (cast)
 	int id; // ID da tarefa
 	short prioridade_estatica;
 	short prioridade_dinamica;
 	short quantum;
 	char status; //estado da tarefa
-	task_t* joined;
   unsigned int init_exec_time;
   unsigned int final_exec_time;
   unsigned int process_time_count; //tempo que tarefa 'ficou' com processador
   int activations;
 	ucontext_t task_context; //contexto da tarefa, não pode ser ponteiro (??)
+	int exitCode;
 
 } task_t;
 

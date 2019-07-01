@@ -125,12 +125,12 @@ void task_exit (int exitCode) {
             tarefa_atual->process_time_count,
             tarefa_atual->activations) ;
     if (tarefa_atual != &dispatcher){
+        tarefa_atual->exitCode = exitCode;
         queue_remove((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
 
-        while (queue_size(tarefa_atual->joined) > 0) {
+        while (queue_size((queue_t*)tarefa_atual->joined) > 0) {
           queue_append ((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual->joined); //adiciona na fila
           queue_remove((queue_t**) &(tarefa_atual->joined), (queue_t*) tarefa_atual->joined);
-
         }
 
         task_switch(&dispatcher);
@@ -204,6 +204,12 @@ int task_getprio (task_t *task){
 
 int task_join (task_t *task) {
 
-  _task_suspend (task, task->joined);
+  if (task != NULL){
+    queue_append((queue_t**) &fila_tarefas, (queue_t*) task);
+    _task_suspend (tarefa_atual, (task_t**) task->joined);
 
+    return task->exitCode;
+  }
+
+  return -1;
 }
