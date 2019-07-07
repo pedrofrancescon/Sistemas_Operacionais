@@ -7,26 +7,10 @@
 #define STACKSIZE 32768        /* tamanho de pilha das threads */
 #define _XOPEN_SOURCE 600    // para evitar erros POSIX no MacOS X
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ucontext.h>
-#include "queue.h" //biblioteca de filas
-
 #ifndef __PINGPONG__
 #define __PINGPONG__
 
 #include "datatypes.h"		// estruturas de dados necessárias
-
-task_t *tarefa_atual; //variavel global da tarefa corrente
-task_t *fila_tarefas; //fila de fila_tarefas
-task_t *fila_tarefas_suspensas; //fila de tarefas suspenas (ainda ñ usado aqui)
-int id_tarefa; //incrementa id para proxima tarefa
-unsigned int program_clock; // contador de tempo transcorrido (em milisegundos)
-task_t tarefa_principal; // tarefa main, não pode ser ponteiro(?)
-task_t dispatcher; //tarefa despachante
-
-struct sigaction acao;
-struct itimerval tempo;
 
 // funções gerais ==============================================================
 
@@ -51,11 +35,11 @@ int task_id (void) ;
 
 // suspende uma tarefa, retirando-a de sua fila atual, adicionando-a à fila
 // queue e mudando seu estado para "suspensa"; usa a tarefa atual se task==NULL
-void _task_suspend (task_t *task, task_t **queue) ;
+void task_suspend (task_t *task, task_t **queue) ;
 
 // acorda uma tarefa, retirando-a de sua fila atual, adicionando-a à fila de
 // tarefas prontas ("ready queue") e mudando seu estado para "pronta"
-void _task_resume (task_t *task) ;
+void task_resume (task_t *task) ;
 
 // operações de escalonamento ==================================================
 

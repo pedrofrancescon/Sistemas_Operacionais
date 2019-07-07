@@ -1,6 +1,22 @@
 #include "pingpong.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <ucontext.h>
+#include "queue.h" //biblioteca de filas
+
 #define FCFS //descomentar para executar sem prioridade: pingpong-contab
 
+
+task_t *tarefa_atual; //variavel global da tarefa corrente
+task_t *fila_tarefas; //fila de fila_tarefas
+task_t *fila_tarefas_suspensas; //fila de tarefas suspenas (ainda ñ usado aqui)
+int id_tarefa; //incrementa id para proxima tarefa
+unsigned int program_clock; // contador de tempo transcorrido (em milisegundos)
+task_t tarefa_principal; // tarefa main, não pode ser ponteiro(?)
+task_t dispatcher; //tarefa despachante
+
+struct sigaction acao;
+struct itimerval tempo;
 
 unsigned int systime ()
 {
@@ -79,9 +95,9 @@ void pingpong_init ()
         perror ("Erro em setitimer: ") ;
         exit (1) ;
     }
-
-    //Fim da Inicialização do Temporizador
     task_create(&dispatcher, (void *)dispatcher_body, NULL); //cria tarefa dispatcher
+    //Fim da Inicialização do Temporizador
+
 }
 
 int task_create (task_t *task, void (*start_func)(void *), void *arg){
@@ -129,19 +145,18 @@ void task_exit (int exitCode) {
         queue_remove((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
 
         while (queue_size((queue_t*)tarefa_atual->joined) > 0) {
-          queue_append ((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual->joined); //adiciona na fila
-          queue_remove((queue_t**) &(tarefa_atual->joined), (queue_t*) tarefa_atual->joined);
+          //preciso salvar a referencia pra não perder no remove
+          task_t *aux = tarefa_atual->joined;
+          queue_remove((queue_t**) &(tarefa_atual->joined), (queue_t*) aux);
+          queue_append ((queue_t**) &fila_tarefas, (queue_t*) aux); //adiciona na fila
         }
-
         task_switch(&dispatcher);
-        printf ("INICIO em %4d ms\n", systime()) ;
-
         return;
     }
     task_switch(&tarefa_principal); //devolve o processador para tarefa main
 }
 
-int task_switch (task_t *task) //ttroca o uso do processador entre tarefas
+int task_switch (task_t *task) //troca o uso do processador entre tarefas
 {
     if(task==NULL) return -1; //retorna erro se a tarefa é invalida
     task_t *tarefa_anterior = tarefa_atual;
@@ -164,20 +179,28 @@ void task_yield (){
     //}
     task_switch(&dispatcher);
 }
-void _task_resume (task_t *task){
+void task_resume (task_t *task){
     queue_remove((queue_t**) &fila_tarefas_suspensas, (queue_t*) task);
     queue_append((queue_t**) &fila_tarefas, (queue_t*) task);
     task->status = 'P'; //tarefa pronta
 }
-void _task_suspend (task_t *task, task_t **queue){
+void task_suspend (task_t *task, task_t **queue){
     if (task != NULL){
+      //Remove da Fila de Prontas (obrigatório)
+      queue_remove((queue_t **) &fila_tarefas, (queue_t *) task);
+      //Adiciona na Fila de Suspensas (se for usar em outra fila, comentar)
+      //queue_append((queue_t **) queue, (queue_t *) tarefa_atual);
+      //Altera o Status
+      task->status = 'S';
+    }
+    /*if (task != NULL){
         // adicionada tarefa atual na lista da tarefa ¨task¨
         queue_append((queue_t **) queue, (queue_t *) tarefa_atual);
         // tarefa atual é suspensa
         tarefa_atual->status = 'S';
         // volta p/ o dispatcher
         task_yield();
-    }
+    }*/
     // else {
     //     task = tarefa_atual;
     //     queue_append((queue_t **) queue, (queue_t *) task);
@@ -204,10 +227,17 @@ int task_getprio (task_t *task){
 
 int task_join (task_t *task) {
 
+  /*
+  Não pode estar em duas filas por causa desse trecho
+  do if no queue.c
+  (elem->next == NULL) && (elem->prev == NULL)
+  */
   if (task != NULL){
-    queue_append((queue_t**) &fila_tarefas, (queue_t*) task);
-    _task_suspend (tarefa_atual, (task_t**) task->joined);
-
+    //ñ precisa adicionar, ela já foi criada (task_create), portanto...
+    //queue_append((queue_t**) &fila_tarefas, (queue_t*) task);
+    task_suspend (tarefa_atual, (task_t**) &fila_tarefas_suspensas);
+    queue_append((queue_t**) &(task->joined), (queue_t*) tarefa_atual);
+    task_switch(&dispatcher);
     return task->exitCode;
   }
 

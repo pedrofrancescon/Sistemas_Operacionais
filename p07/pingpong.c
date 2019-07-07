@@ -2,6 +2,17 @@
 #define FCFS //descomentar para executar sem prioridade: pingpong-contab
 
 
+task_t *tarefa_atual; //variavel global da tarefa corrente
+task_t *fila_tarefas; //fila de fila_tarefas
+task_t *fila_tarefas_suspensas; //fila de tarefas suspenas (ainda ñ usado aqui)
+int id_tarefa; //incrementa id para proxima tarefa
+unsigned int program_clock; // contador de tempo transcorrido (em milisegundos)
+task_t tarefa_principal; // tarefa main, não pode ser ponteiro(?)
+task_t dispatcher; //tarefa despachante
+
+struct sigaction acao;
+struct itimerval tempo;
+
 unsigned int systime ()
 {
     return program_clock;
@@ -157,12 +168,12 @@ void task_yield (){
     //}
     task_switch(&dispatcher);
 }
-void _task_resume (task_t *task){
+void task_resume (task_t *task){
     queue_remove((queue_t**) &fila_tarefas_suspensas, (queue_t*) task);
     queue_append((queue_t**) &fila_tarefas, (queue_t*) task);
     task->status = 'P'; //tarefa pronta
 }
-void _task_suspend (task_t *task, task_t **queue){
+void task_suspend (task_t *task, task_t **queue){
     if (task != NULL){
         queue_append((queue_t **) queue, (queue_t *) task);
         //muda o status
