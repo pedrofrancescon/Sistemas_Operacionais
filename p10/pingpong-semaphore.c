@@ -41,9 +41,9 @@ int main (int argc, char *argv[])
    sem_create (&s2, 0) ;
 
    task_create (&a1, TaskA, "A1") ;
-   task_create (&a2, TaskA, "    A2") ;
-   task_create (&b1, TaskB, "                         B1") ;
-   task_create (&b2, TaskB, "                             B2") ;
+   task_create (&a2, TaskA, "  A2") ;
+   task_create (&b1, TaskB, "       B1") ;
+   task_create (&b2, TaskB, "          B2") ;
 
    task_join (&a1) ;
 
