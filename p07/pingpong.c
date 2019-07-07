@@ -1,4 +1,8 @@
 #include "pingpong.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <ucontext.h>
+#include "queue.h" //biblioteca de filas
 #define FCFS //descomentar para executar sem prioridade: pingpong-contab
 
 

@@ -10,6 +10,7 @@
 task_t *tarefa_atual; //variavel global da tarefa corrente
 task_t *fila_tarefas; //fila de fila_tarefas
 task_t *fila_tarefas_suspensas; //fila de tarefas suspenas (ainda ñ usado aqui)
+task_t *fila_tarefas_adormecidas;
 int id_tarefa; //incrementa id para proxima tarefa
 unsigned int program_clock; // contador de tempo transcorrido (em milisegundos)
 task_t tarefa_principal; // tarefa main, não pode ser ponteiro(?)
@@ -22,7 +23,25 @@ unsigned int systime ()
 {
     return program_clock;
 }
-
+void acorda_tarefas(){
+  //percorre fila de fila_tarefas_adormecidas
+  task_t *tarefa = fila_tarefas_adormecidas;
+  //Salva tamanho da fila
+  short tam = queue_size((queue_t*)fila_tarefas_adormecidas);
+  short i = 0;
+  //percorre fila inteira
+  while (i < tam){
+    //se já tiver dado o tempo da soneca
+    if (tarefa->sleep <= systime()){
+      //remove da fila de adormecidas e coloca na fila de prontas
+      queue_remove((queue_t **) &fila_tarefas_adormecidas, (queue_t *) tarefa);
+      queue_append((queue_t **) &fila_tarefas, (queue_t*) tarefa);
+    }
+    //'anda' na fila
+    tarefa = tarefa->next;
+    i++;
+  }
+}
 task_t* scheduler(){
     #ifdef FCFS
         return fila_tarefas;
@@ -39,14 +58,16 @@ task_t* scheduler(){
             candidato_prioritario->prioridade_dinamica -= 1; //envelhecimento da tarefa
             candidato_prioritario = candidato_prioritario->next; //'anda' na fila
         }
-        fila_tarefas->prioridade_dinamica -= 1; //envelhecimento do primeiro elemento
+        filaprogram_clock_tarefas->prioridade_dinamica -= 1; //envelhecimento do primeiro elemento
         prioritario->prioridade_dinamica = prioritario->prioridade_estatica; //retorno da prioridade original
         return prioritario;
     #endif
 }
 void dispatcher_body (){
     task_t *prox; //próxima tarefa, escolhida pelo despachante
-    while (fila_tarefas > 0){
+    //Percorre fila de prontas e adormecidas
+    while (fila_tarefas > 0 || fila_tarefas_adormecidas > 0){
+        acorda_tarefas();
         prox = scheduler();
         if (prox){
             task_switch(prox);
@@ -55,14 +76,14 @@ void dispatcher_body (){
     task_exit(0); //devolve processador para Main
 }
 void tique(){
-    program_clock += 1;
-    tarefa_atual->process_time_count += 1;
-    if (task_id() != 1){ //tarefa de usuário ou main
-        tarefa_atual->quantum -= 1;
+  program_clock += 1;
+  tarefa_atual->process_time_count += 1;
+  if (task_id() != 1){ //tarefa de usuário ou main
+    tarefa_atual->quantum -= 1;
 
-        if (tarefa_atual->quantum == 0)
-            task_yield();
-    }
+    if (tarefa_atual->quantum == 0)
+    task_yield();
+  }
 }
 void pingpong_init ()
 {
@@ -141,8 +162,8 @@ void task_exit (int exitCode) {
             tarefa_atual->process_time_count,
             tarefa_atual->activations) ;
     if (tarefa_atual != &dispatcher){
-        tarefa_atual->status = 'T';
-        tarefa_atual->exitCode = exitCode;
+        tarefa_atual->status = 'T'; //altera status para terminada
+        tarefa_atual->exitCode = exitCode; //salva exit code
         queue_remove((queue_t**) &fila_tarefas, (queue_t*) tarefa_atual);
 
         while (queue_size((queue_t*)tarefa_atual->joined) > 0) {
@@ -241,6 +262,16 @@ int task_join (task_t *task) {
     task_switch(&dispatcher);
     return task->exitCode;
   }
-
   return -1;
+}
+
+void task_sleep (int t) {
+  //Retira tarefa da fila de prontas
+  queue_remove((queue_t **) &fila_tarefas, (queue_t *) tarefa_atual);
+  //Coloca a tarefa na fila de adormecidas
+  queue_append((queue_t **) &fila_tarefas_adormecidas, (queue_t*) tarefa_atual);
+  //Calcula o instante em que a tarefa será acordada
+  tarefa_atual->sleep = systime() + t*1000;
+  //Retorna controle para o dispatcher
+  task_switch(&dispatcher);
 }
