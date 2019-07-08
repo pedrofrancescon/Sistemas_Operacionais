@@ -1,3 +1,6 @@
+/* Pedro Francescon Cittolin
+  Viviane Lima Bonfim */
+
 // PingPongOS - PingPong Operating System
 // Prof. Carlos A. Maziero, DAINF UTFPR
 // Versão 1.0 -- Março de 2015
